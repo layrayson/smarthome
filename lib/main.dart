@@ -56,9 +56,12 @@ class _MyAppState extends State<MyApp> {
       position.latitude,
       position.longitude,
     );
-    print(distanceBetween);
-    BlocProvider.of<AppCubit>(context).setUserFarFromHome(true);
-    if (distanceBetween > 50) {}
+    print('dist: ${distanceBetween}');
+    BlocProvider.of<AppCubit>(context).setDistanceBetween(distanceBetween);
+
+    if (distanceBetween > 2) {
+      BlocProvider.of<AppCubit>(context).setUserFarFromHome(true);
+    }
   }
 
   @override

@@ -56,18 +56,6 @@ class _HomePageState extends State<HomePage> {
   }
 
   updateThingSpeakChannel() async {
-    // http.Response response =
-    //     await http.get(Uri.parse(writeBaseUrl + _payload.value));
-
-    // if (response.statusCode == 200) {
-    //   // Parse the response body to retrieve the data
-
-    //   final data = convert.jsonDecode(response.body);
-    //   print(data);
-    // } else {
-    //   print('Request failed with status: ${response.statusCode}.');
-    // }
-
     cancelToken.cancel('cancelled');
     cancelToken = CancelToken();
     try {
@@ -100,8 +88,6 @@ class _HomePageState extends State<HomePage> {
         print('normal error');
       }
     }
-
-// Cancel the requests with "cancelled" message.
   }
 
   updatePayload(String fieldNumber, bool state) {
@@ -204,7 +190,8 @@ class _HomePageState extends State<HomePage> {
       body: SafeArea(
         child: BlocListener<AppCubit, AppState>(
           listener: (context, state) {
-            toggleAll(state: false);
+            print('change: ${state.distanceBetween}');
+            if (state.userFarFromHome) toggleAll(state: false);
           },
           child: Container(
             padding: EdgeInsets.all(16),
@@ -395,6 +382,19 @@ class _HomePageState extends State<HomePage> {
                     ],
                   ),
                 ),
+                Center(
+                  child: BlocBuilder<AppCubit, AppState>(
+                    builder: (context, state) {
+                      return Text(
+                        '${state.distanceBetween}',
+                        style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 32),
+                      );
+                    },
+                  ),
+                )
               ],
             ),
           ),
