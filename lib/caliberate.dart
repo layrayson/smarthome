@@ -1,11 +1,13 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:geolocator/geolocator.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:smarthome/cubits/location_cubit.dart';
 
 class CaliberateLocation extends StatefulWidget {
   const CaliberateLocation({super.key});
@@ -15,24 +17,6 @@ class CaliberateLocation extends StatefulWidget {
 }
 
 class _CaliberateLocationState extends State<CaliberateLocation> {
-  Future<String> get _localPath async {
-    final directory = await getApplicationDocumentsDirectory();
-
-    return directory.path;
-  }
-
-  Future<File> get _localFile async {
-    final path = await _localPath;
-    return File('$path/location.txt');
-  }
-
-  Future<File> writeLocation(String location) async {
-    final file = await _localFile;
-
-    // Write the file
-    return file.writeAsString('$location');
-  }
-
   @override
   void initState() {
     // TODO: implement initState
@@ -99,7 +83,8 @@ class _CaliberateLocationState extends State<CaliberateLocation> {
               onPressed: () async {
                 Position? position = await getUserLocation();
                 print(position?.latitude);
-                writeLocation('${position?.latitude},${position?.longitude}');
+                BlocProvider.of<LocationCubit>(context).writeLocation(
+                    '${position?.latitude},${position?.longitude}');
               },
               child: Text(
                 "Yes, Caliberate",
