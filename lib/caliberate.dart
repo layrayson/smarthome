@@ -31,7 +31,7 @@ class _CaliberateLocationState extends State<CaliberateLocation> {
     if (permission == PermissionStatus.granted) {
       // Get the user's location
       Position position = await Geolocator.getCurrentPosition(
-          desiredAccuracy: LocationAccuracy.high);
+          desiredAccuracy: LocationAccuracy.best);
 
       // Print the latitude and longitude
       print('Latitude: ${position.latitude}, Longitude: ${position.longitude}');
@@ -85,6 +85,7 @@ class _CaliberateLocationState extends State<CaliberateLocation> {
                 print(position?.latitude);
                 BlocProvider.of<LocationCubit>(context).writeLocation(
                     '${position?.latitude},${position?.longitude}');
+                BlocProvider.of<LocationCubit>(context).start();
               },
               child: Text(
                 "Yes, Caliberate",

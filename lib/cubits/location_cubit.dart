@@ -5,6 +5,7 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class LocationState extends Equatable {
   final bool userFarFromHome;
@@ -27,12 +28,14 @@ class LocationCubit extends Cubit<LocationState> {
   }
 
   LocationCubit() : super(LocationState(userFarFromHome: false)) {}
-  start() {
-    final StreamSubscription<Position> positionStream =
-        Geolocator.getPositionStream(
-                locationSettings:
-                    LocationSettings(accuracy: LocationAccuracy.high))
-            .listen(checkUserFarFromHome);
+  start() async {
+    if (!(await Permission.location.isDenied)) {
+      final StreamSubscription<Position> positionStream =
+          Geolocator.getPositionStream(
+                  locationSettings:
+                      LocationSettings(accuracy: LocationAccuracy.best))
+              .listen(checkUserFarFromHome);
+    }
   }
 
   Future<File> writeLocation(String location) async {
@@ -69,15 +72,10 @@ class LocationCubit extends Cubit<LocationState> {
       position.longitude,
     );
     print('dist: ${distanceBetween}');
-    // BlocProvider.of<LocationCubit>(context).setDistanceBetween(distanceBetween);
 
-    // if (distanceBetween > 2) {
-    //   BlocProvider.of<LocationCubit>(context).setUserFarFromHome(true);
-    // }
-    if (distanceBetween > 5) {
-      emit(LocationState(
-          userFarFromHome: true, distanceBetween: distanceBetween));
-    }
+    emit(LocationState(
+        userFarFromHome: distanceBetween > 2,
+        distanceBetween: distanceBetween));
   }
 
   setUserFarFromHome(bool data) {

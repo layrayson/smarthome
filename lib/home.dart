@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
@@ -24,9 +25,14 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   ControlCubit get cubit => BlocProvider.of<ControlCubit>(context);
-
+  final User? user = FirebaseAuth.instance.currentUser;
   void initState() {
     super.initState();
+    cubit.getThingsPeakFeed();
+  }
+
+  logout() async {
+    await FirebaseAuth.instance.signOut();
   }
 
   @override
@@ -94,6 +100,25 @@ class _HomePageState extends State<HomePage> {
                             ),
                           ),
                         ),
+                      ),
+                      ListTile(
+                        onTap: () {
+                          logout();
+                        },
+                        leading: Icon(
+                          Icons.power_rounded,
+                          color: Colors.white,
+                        ),
+                        title: Text(
+                          'Logout',
+                          style: GoogleFonts.roboto(
+                            textStyle: TextStyle(
+                              color: Colors.white,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
                       )
                     ],
                   )
@@ -122,7 +147,7 @@ class _HomePageState extends State<HomePage> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        'Welcome, Olalere',
+                        'Welcome',
                         style: GoogleFonts.roboto(
                           textStyle: const TextStyle(
                             color: Colors.white,

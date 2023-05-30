@@ -44,6 +44,9 @@ class ControlCubit extends Cubit<ControlState> {
   CancelToken cancelToken = CancelToken();
 
   String get writeAPIKey => 'NPP769B2M1CGHPTS';
+  String get readAPIKey => '2D57956GJFJ3BH8H';
+
+  String get channelNumber => '2100436';
   String get writeBaseUrl =>
       'https://api.thingspeak.com/update?api_key=$writeAPIKey';
   ControlCubit()
@@ -63,6 +66,10 @@ class ControlCubit extends Cubit<ControlState> {
     return value ? 1 : 0;
   }
 
+  bool convertToBool(dynamic value) {
+    return value == '1' ? true : false;
+  }
+
   setComponentState(
       {bool? bulbState,
       bool? fanState,
@@ -75,6 +82,37 @@ class ControlCubit extends Cubit<ControlState> {
         allState: allState ?? state.allState,
         mode: state.mode));
     await updateThingSpeakChannel();
+  }
+
+  getThingsPeakFeed() async {
+    try {
+      emit(ControlState(
+          bulbState: state.bulbState,
+          fanState: state.fanState,
+          socketState: state.socketState,
+          allState: state.allState,
+          mode: Mode.loading));
+      final url =
+          'https://api.thingspeak.com/channels/${channelNumber}/feeds.json?api_key=${readAPIKey}&results=1';
+      print(url);
+      print('objectsb are good');
+      var response = (await dio.get(url));
+      print(response.data);
+      print('response');
+
+      final feeds = response.data["feeds"][0];
+      print(feeds);
+      final bulbState = convertToBool(feeds["field1"]);
+      final fanState = convertToBool(feeds["field2"]);
+      final socketState = convertToBool(feeds["field3"]);
+
+      emit(ControlState(
+          bulbState: bulbState,
+          fanState: fanState,
+          socketState: socketState,
+          allState: bulbState && fanState && socketState,
+          mode: Mode.loaded));
+    } catch (e) {}
   }
 
   updateThingSpeakChannel() async {
